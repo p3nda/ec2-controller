@@ -137,6 +137,10 @@ operations:
     output_wrapper_field_path: NatGateway
   CreateVpcEndpoint:
     output_wrapper_field_path: VpcEndpoint
+  CreateFlowLogs:
+    operation_type:
+    - Create
+    resource_name: FlowLog
   DeleteVpcEndpoints:
     operation_type:
       - Delete
@@ -553,6 +557,20 @@ resources:
         template_path: hooks/transit_gateway/sdk_file_end.go.tpl
     update_operation:
       custom_method_name: customUpdateTransitGateway
+  FlowLog:
+    fields:
+      FlowLogId:
+        is_read_only: true
+        from:
+          operation: DescribeFlowLogs
+          path: FlowLogs.FlowLogId
+      ResourceId:
+        is_read_only: true
+        from:
+          operation: DescribeFlowLogs
+          path: FlowLogs.ResourceId
+    tags:
+      ignore: true
   Vpc:
     update_operation:
       custom_method_name: customUpdateVPC

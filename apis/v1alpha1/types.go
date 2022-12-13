@@ -454,7 +454,6 @@ type ClassicLinkDNSSupport struct {
 	VPCID                   *string `json:"vpcID,omitempty"`
 }
 
-//
 // We are retiring EC2-Classic on August 15, 2022. We recommend that you migrate
 // from EC2-Classic to a VPC. For more information, see Migrate from EC2-Classic
 // to a VPC (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-migrate.html)
@@ -818,14 +817,16 @@ type DescribeFleetsInstances struct {
 
 // Describes the destination options for a flow log.
 type DestinationOptionsRequest struct {
-	HiveCompatiblePartitions *bool `json:"hiveCompatiblePartitions,omitempty"`
-	PerHourPartition         *bool `json:"perHourPartition,omitempty"`
+	FileFormat               *string `json:"fileFormat,omitempty"`
+	HiveCompatiblePartitions *bool   `json:"hiveCompatiblePartitions,omitempty"`
+	PerHourPartition         *bool   `json:"perHourPartition,omitempty"`
 }
 
 // Describes the destination options for a flow log.
 type DestinationOptionsResponse struct {
-	HiveCompatiblePartitions *bool `json:"hiveCompatiblePartitions,omitempty"`
-	PerHourPartition         *bool `json:"perHourPartition,omitempty"`
+	FileFormat               *string `json:"fileFormat,omitempty"`
+	HiveCompatiblePartitions *bool   `json:"hiveCompatiblePartitions,omitempty"`
+	PerHourPartition         *bool   `json:"perHourPartition,omitempty"`
 }
 
 // Describes an Active Directory.
@@ -1245,19 +1246,23 @@ type FleetSpotCapacityRebalanceRequest struct {
 }
 
 // Describes a flow log.
-type FlowLog struct {
+type FlowLog_SDK struct {
 	CreationTime             *metav1.Time `json:"creationTime,omitempty"`
 	DeliverLogsErrorMessage  *string      `json:"deliverLogsErrorMessage,omitempty"`
 	DeliverLogsPermissionARN *string      `json:"deliverLogsPermissionARN,omitempty"`
 	DeliverLogsStatus        *string      `json:"deliverLogsStatus,omitempty"`
-	FlowLogID                *string      `json:"flowLogID,omitempty"`
-	FlowLogStatus            *string      `json:"flowLogStatus,omitempty"`
-	LogDestination           *string      `json:"logDestination,omitempty"`
-	LogFormat                *string      `json:"logFormat,omitempty"`
-	LogGroupName             *string      `json:"logGroupName,omitempty"`
-	MaxAggregationInterval   *int64       `json:"maxAggregationInterval,omitempty"`
-	ResourceID               *string      `json:"resourceID,omitempty"`
-	Tags                     []*Tag       `json:"tags,omitempty"`
+	// Describes the destination options for a flow log.
+	DestinationOptions     *DestinationOptionsResponse `json:"destinationOptions,omitempty"`
+	FlowLogID              *string                     `json:"flowLogID,omitempty"`
+	FlowLogStatus          *string                     `json:"flowLogStatus,omitempty"`
+	LogDestination         *string                     `json:"logDestination,omitempty"`
+	LogDestinationType     *string                     `json:"logDestinationType,omitempty"`
+	LogFormat              *string                     `json:"logFormat,omitempty"`
+	LogGroupName           *string                     `json:"logGroupName,omitempty"`
+	MaxAggregationInterval *int64                      `json:"maxAggregationInterval,omitempty"`
+	ResourceID             *string                     `json:"resourceID,omitempty"`
+	Tags                   []*Tag                      `json:"tags,omitempty"`
+	TrafficType            *string                     `json:"trafficType,omitempty"`
 }
 
 // Describes a security group.
@@ -2439,13 +2444,15 @@ type LaunchTemplateSpotMarketOptionsRequest struct {
 
 // The tags specification for the launch template.
 type LaunchTemplateTagSpecification struct {
-	Tags []*Tag `json:"tags,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Tags         []*Tag  `json:"tags,omitempty"`
 }
 
 // The tags specification for the resources that are created during instance
 // launch.
 type LaunchTemplateTagSpecificationRequest struct {
-	Tags []*Tag `json:"tags,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Tags         []*Tag  `json:"tags,omitempty"`
 }
 
 // Describes a launch template version.
@@ -2860,7 +2867,6 @@ type PeeringAttachmentStatus struct {
 	Message *string `json:"message,omitempty"`
 }
 
-//
 // We are retiring EC2-Classic on August 15, 2022. We recommend that you migrate
 // from EC2-Classic to a VPC. For more information, see Migrate from EC2-Classic
 // to a VPC (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-migrate.html)
@@ -2873,7 +2879,6 @@ type PeeringConnectionOptions struct {
 	AllowEgressFromLocalVPCToRemoteClassicLink *bool `json:"allowEgressFromLocalVPCToRemoteClassicLink,omitempty"`
 }
 
-//
 // We are retiring EC2-Classic on August 15, 2022. We recommend that you migrate
 // from EC2-Classic to a VPC. For more information, see Migrate from EC2-Classic
 // to a VPC (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-migrate.html)
@@ -3611,13 +3616,13 @@ type SecurityGroupRuleDescription struct {
 // You must specify exactly one of the following parameters, based on the rule
 // type:
 //
-//    * CidrIpv4
+//   - CidrIpv4
 //
-//    * CidrIpv6
+//   - CidrIpv6
 //
-//    * PrefixListId
+//   - PrefixListId
 //
-//    * ReferencedGroupId
+//   - ReferencedGroupId
 //
 // When you modify a rule, you cannot change the rule type. For example, if
 // the rule uses an IPv4 address range, you must use CidrIpv4 to specify a new
@@ -3813,25 +3818,27 @@ type SpotFleetRequestConfig struct {
 
 // Describes the configuration of a Spot Fleet request.
 type SpotFleetRequestConfigData struct {
-	ClientToken                      *string      `json:"clientToken,omitempty"`
-	Context                          *string      `json:"context,omitempty"`
-	IAMFleetRole                     *string      `json:"iamFleetRole,omitempty"`
-	InstanceInterruptionBehavior     *string      `json:"instanceInterruptionBehavior,omitempty"`
-	InstancePoolsToUseCount          *int64       `json:"instancePoolsToUseCount,omitempty"`
-	OnDemandMaxTotalPrice            *string      `json:"onDemandMaxTotalPrice,omitempty"`
-	OnDemandTargetCapacity           *int64       `json:"onDemandTargetCapacity,omitempty"`
-	ReplaceUnhealthyInstances        *bool        `json:"replaceUnhealthyInstances,omitempty"`
-	SpotMaxTotalPrice                *string      `json:"spotMaxTotalPrice,omitempty"`
-	SpotPrice                        *string      `json:"spotPrice,omitempty"`
-	TargetCapacity                   *int64       `json:"targetCapacity,omitempty"`
-	TerminateInstancesWithExpiration *bool        `json:"terminateInstancesWithExpiration,omitempty"`
-	ValidFrom                        *metav1.Time `json:"validFrom,omitempty"`
-	ValidUntil                       *metav1.Time `json:"validUntil,omitempty"`
+	ClientToken                      *string             `json:"clientToken,omitempty"`
+	Context                          *string             `json:"context,omitempty"`
+	IAMFleetRole                     *string             `json:"iamFleetRole,omitempty"`
+	InstanceInterruptionBehavior     *string             `json:"instanceInterruptionBehavior,omitempty"`
+	InstancePoolsToUseCount          *int64              `json:"instancePoolsToUseCount,omitempty"`
+	OnDemandMaxTotalPrice            *string             `json:"onDemandMaxTotalPrice,omitempty"`
+	OnDemandTargetCapacity           *int64              `json:"onDemandTargetCapacity,omitempty"`
+	ReplaceUnhealthyInstances        *bool               `json:"replaceUnhealthyInstances,omitempty"`
+	SpotMaxTotalPrice                *string             `json:"spotMaxTotalPrice,omitempty"`
+	SpotPrice                        *string             `json:"spotPrice,omitempty"`
+	TagSpecifications                []*TagSpecification `json:"tagSpecifications,omitempty"`
+	TargetCapacity                   *int64              `json:"targetCapacity,omitempty"`
+	TerminateInstancesWithExpiration *bool               `json:"terminateInstancesWithExpiration,omitempty"`
+	ValidFrom                        *metav1.Time        `json:"validFrom,omitempty"`
+	ValidUntil                       *metav1.Time        `json:"validUntil,omitempty"`
 }
 
 // The tags for a Spot Fleet resource.
 type SpotFleetTagSpecification struct {
-	Tags []*Tag `json:"tags,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Tags         []*Tag  `json:"tags,omitempty"`
 }
 
 // Describes a Spot Instance request.
@@ -4034,9 +4041,10 @@ type Tag struct {
 
 // Describes a tag.
 type TagDescription struct {
-	Key        *string `json:"key,omitempty"`
-	ResourceID *string `json:"resourceID,omitempty"`
-	Value      *string `json:"value,omitempty"`
+	Key          *string `json:"key,omitempty"`
+	ResourceID   *string `json:"resourceID,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Value        *string `json:"value,omitempty"`
 }
 
 // The tags to apply to a resource when the resource is being created.
@@ -4046,7 +4054,8 @@ type TagDescription struct {
 // If you try to tag a resource type that is unsupported for the action you're
 // using, you'll get an error.
 type TagSpecification struct {
-	Tags []*Tag `json:"tags,omitempty"`
+	ResourceType *string `json:"resourceType,omitempty"`
+	Tags         []*Tag  `json:"tags,omitempty"`
 }
 
 // The number of units to request. You can choose to set the target capacity
@@ -4468,7 +4477,6 @@ type TransitGateway_SDK struct {
 	TransitGatewayID  *string                `json:"transitGatewayID,omitempty"`
 }
 
-//
 // Currently available in limited preview only. If you are interested in using
 // this feature, contact your account manager.
 //
@@ -4599,7 +4607,6 @@ type VPCCIDRBlockState struct {
 	StatusMessage *string `json:"statusMessage,omitempty"`
 }
 
-//
 // We are retiring EC2-Classic on August 15, 2022. We recommend that you migrate
 // from EC2-Classic to a VPC. For more information, see Migrate from EC2-Classic
 // to a VPC (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-migrate.html)
@@ -4667,7 +4674,6 @@ type VPCPeeringConnection struct {
 	VPCPeeringConnectionID *string      `json:"vpcPeeringConnectionID,omitempty"`
 }
 
-//
 // We are retiring EC2-Classic on August 15, 2022. We recommend that you migrate
 // from EC2-Classic to a VPC. For more information, see Migrate from EC2-Classic
 // to a VPC (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-migrate.html)
